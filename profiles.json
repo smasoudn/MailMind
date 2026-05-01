@@ -1,0 +1,39 @@
+{
+    "senders": {
+        "user_1": {
+            "name": "Alex Mercer",
+            "role": "Product Manager",
+            "company": "TechInnovate Inc.",
+            "style_preferences": "Clear, concise, action-oriented, slightly enthusiastic",
+            "sign_off": "Best regards,\nAlex Mercer\nProduct Manager | TechInnovate Inc."
+        },
+        "user_2": {
+            "name": "Sarah Chen",
+            "role": "Customer Success Lead",
+            "company": "SaaSify",
+            "style_preferences": "Empathetic, structured, highly professional but warm",
+            "sign_off": "Warmly,\nSarah Chen"
+        },
+        "user_3": {
+            "name": "Masoud",
+            "role": "IC",
+            "company": "Meta",
+            "style_preferences": "casual and polite",
+            "sign_off": "Masoud"
+        }
+    },
+    "recipients": {
+        "client": {
+            "type": "Client",
+            "guidance": "Be respectful of their time. Focus on value proposition and clear next steps."
+        },
+        "colleague": {
+            "type": "Colleague",
+            "guidance": "Use a collaborative and direct tone. Assume shared context."
+        },
+        "manager": {
+            "type": "Manager",
+            "guidance": "Be concise, highlight impact and blockers, request clear guidance."
+        }
+    }
+}
