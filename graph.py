@@ -10,6 +10,16 @@ from agents import (
     review_validator
 )
 
+def route_from_routing(state: MailMindState):
+    if state.get("routing_decision") == "continue":
+        return "parser"
+    return END
+
+def route_from_review(state: MailMindState):
+    if state.get("final_email"):
+        return END
+    return "draft"  # Loop back if validation failed
+
 def create_graph():
     builder = StateGraph(MailMindState)
     
@@ -25,11 +35,6 @@ def create_graph():
     # Edges
     builder.add_edge(START, "routing")
     
-    def route_from_routing(state: MailMindState):
-        if state.get("routing_decision") == "continue":
-            return "parser"
-        return END
-
     builder.add_conditional_edges(
         "routing", 
         route_from_routing,
@@ -42,11 +47,6 @@ def create_graph():
     builder.add_edge("draft", "tone")
     builder.add_edge("tone", "review")
     
-    def route_from_review(state: MailMindState):
-        if state.get("final_email"):
-            return END
-        return "draft"  # Loop back if validation failed
-        
     builder.add_conditional_edges(
         "review", 
         route_from_review,
