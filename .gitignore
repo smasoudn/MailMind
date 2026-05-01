@@ -4,3 +4,5 @@ __pycache__/
 *.pyc
 .DS_Store
 memory_log.jsonl
+display_graph.ipynb
+

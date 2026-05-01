@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from openai import OpenAI
 
 from state import MailMindState
 
@@ -17,6 +18,15 @@ class RoutingDecision(BaseModel):
     reason: str = Field(description="Reason if not valid")
 
 def routing_agent(state: MailMindState) -> dict:
+    # --- MODERATION CHECK ON USER INPUT ---
+    try:
+        client = OpenAI()
+        mod_res = client.moderations.create(input=state["raw_prompt"])
+        if mod_res.results[0].flagged:
+            return {"routing_decision": "reject", "error": "Your input violates our safety and moderation policies."}
+    except Exception as e:
+        return {"routing_decision": "error", "error": f"Moderation check failed: {str(e)}"}
+
     llm = get_llm().with_structured_output(RoutingDecision)
     prompt = ChatPromptTemplate.from_messages([
         ("system", "You are the routing agent for an email assistant. Determine if the user's input is a valid request to write an email."),
@@ -134,6 +144,20 @@ class ValidationResult(BaseModel):
     feedback: str = Field(description="Feedback if invalid, otherwise empty string")
 
 def review_validator(state: MailMindState) -> dict:
+    retry_count = state.get("retry_count", 0)
+    
+    # 1. Moderation Check on Draft
+    try:
+        client = OpenAI()
+        mod_res = client.moderations.create(input=state["tone_styled_draft"])
+        if mod_res.results[0].flagged:
+            if retry_count >= 2:
+                return {"final_email": state["tone_styled_draft"], "validation_feedback": "Safety Violation (Max retries reached)"}
+            return {"validation_feedback": "The generated draft violated safety policies. Please rewrite it completely.", "retry_count": retry_count + 1}
+    except Exception:
+        pass # Proceed to LLM validation if moderation check fails
+        
+    # 2. LLM Quality Validation
     llm = get_llm().with_structured_output(ValidationResult)
     prompt = ChatPromptTemplate.from_messages([
         ("system", "Review the generated email. Ensure it addresses the user's key points, intent, and requested tone '{tone}'. Check for grammar and coherence."),
@@ -146,8 +170,6 @@ def review_validator(state: MailMindState) -> dict:
         "key_points": ", ".join(state["parsed_input"]["key_points"]),
         "draft": state["tone_styled_draft"]
     })
-    
-    retry_count = state.get("retry_count", 0)
     
     if res.is_valid or retry_count >= 2:
         return {"final_email": state["tone_styled_draft"], "validation_feedback": "Passed" if res.is_valid else "Max retries reached"}
