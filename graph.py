@@ -30,7 +30,11 @@ def create_graph():
             return "parser"
         return END
 
-    builder.add_conditional_edges("routing", route_from_routing)
+    builder.add_conditional_edges(
+        "routing", 
+        route_from_routing,
+        {"parser": "parser", END: END}
+    )
     
     builder.add_edge("parser", "intent")
     builder.add_edge("intent", "personalization")
@@ -43,7 +47,11 @@ def create_graph():
             return END
         return "draft"  # Loop back if validation failed
         
-    builder.add_conditional_edges("review", route_from_review)
+    builder.add_conditional_edges(
+        "review", 
+        route_from_review,
+        {END: END, "draft": "draft"}
+    )
     
     return builder.compile()
 
