@@ -60,6 +60,8 @@ graph TD;
 
 ## 🚀 How to Use It
 
+The following endpoint is live for a limited time, and you can use it to test the application: https://mailmind-918275989632.us-central1.run.app
+
 The application features a conversational Streamlit interface where users can:
 1. Select a **Tone** from the sidebar.
 2. Select a **Recipient Type** (e.g., Boss, Client, Colleague).
@@ -74,6 +76,8 @@ The application features a conversational Streamlit interface where users can:
 - An OpenAI API Key
 
 ### Setup Instructions
+
+The following endpoint is live for a limited time, and you can use it to test the application: https://mailmind-918275989632.us-central1.run.app
 
 1. **Clone the repository:**
    ```bash
